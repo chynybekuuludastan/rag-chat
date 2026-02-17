@@ -86,7 +86,7 @@ func (s *chatService) Ask(ctx context.Context, userID uuid.UUID, sessionID *uuid
 
 	questionEmbedding, err := s.llm.Embed(ctx, []string{question})
 	if err != nil {
-		return nil, nil, model.NewAppError(502, "embedding_error", "Failed to embed question")
+		return nil, nil, model.NewAppError(502, "embedding_error", fmt.Sprintf("Failed to embed question: %v", err))
 	}
 
 	relevantChunks, err := s.chunkRepo.SearchSimilar(ctx, questionEmbedding[0], userID, topKChunks, similarityThreshold)

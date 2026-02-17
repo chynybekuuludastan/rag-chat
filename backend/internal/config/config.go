@@ -59,7 +59,7 @@ func Load() (*Config, error) {
 		Gemini: GeminiConfig{
 			APIKey:         os.Getenv("GEMINI_API_KEY"),
 			ChatModel:      getEnv("GEMINI_CHAT_MODEL", "gemini-2.5-flash"),
-			EmbeddingModel: getEnv("GEMINI_EMBEDDING_MODEL", "text-embedding-004"),
+			EmbeddingModel: getEnv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001"),
 		},
 		JWT: JWTConfig{
 			Secret:          os.Getenv("JWT_SECRET"),

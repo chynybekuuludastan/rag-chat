@@ -38,12 +38,14 @@ func (c *GeminiClient) Embed(ctx context.Context, texts []string) ([][]float32, 
 
 	// Gemini EmbedContent takes a single content input, so we loop over texts.
 	for i, text := range texts {
+		dim := int32(768)
 		result, err := c.client.Models.EmbedContent(
 			ctx,
 			c.embeddingModel,
 			genai.Text(text),
 			&genai.EmbedContentConfig{
-				TaskType: "RETRIEVAL_DOCUMENT",
+				TaskType:             "RETRIEVAL_DOCUMENT",
+				OutputDimensionality: &dim,
 			},
 		)
 		if err != nil {
