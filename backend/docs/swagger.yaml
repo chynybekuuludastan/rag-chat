@@ -1,0 +1,426 @@
+basePath: /api
+definitions:
+  handler.askRequest:
+    properties:
+      question:
+        example: What does the report say about revenue?
+        type: string
+      session_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  handler.documentListResponse:
+    properties:
+      documents:
+        items:
+          $ref: '#/definitions/handler.documentResponse'
+        type: array
+    type: object
+  handler.documentResponse:
+    properties:
+      chunk_count:
+        example: 12
+        type: integer
+      created_at:
+        type: string
+      file_size:
+        example: 102400
+        type: integer
+      file_type:
+        example: pdf
+        type: string
+      filename:
+        example: report.pdf
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+    type: object
+  handler.errorResponse:
+    properties:
+      error:
+        example: validation_error
+        type: string
+      message:
+        example: Email is required
+        type: string
+    type: object
+  handler.loginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: securepass123
+        type: string
+    type: object
+  handler.loginResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIs...
+        type: string
+      expires_at:
+        example: 1700000000
+        type: integer
+    type: object
+  handler.messageListResponse:
+    properties:
+      messages:
+        items:
+          $ref: '#/definitions/handler.messageResponse'
+        type: array
+    type: object
+  handler.messageResponse:
+    properties:
+      content:
+        example: According to the document...
+        type: string
+      created_at:
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      role:
+        example: assistant
+        type: string
+      session_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+      source_chunks:
+        items:
+          type: string
+        type: array
+    type: object
+  handler.registerRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: securepass123
+        type: string
+    type: object
+  handler.registerResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  handler.sessionListResponse:
+    properties:
+      sessions:
+        items:
+          $ref: '#/definitions/handler.sessionResponse'
+        type: array
+    type: object
+  handler.sessionResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      title:
+        example: What is the revenue?
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440001
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: RAG-powered chat API with document upload, embedding, and LLM-based
+    Q&A
+  title: Mini RAG Chat API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with email and password, returns access token and
+        sets refresh token cookie
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: Exchange refresh token (from cookie) for a new access token pair
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.loginResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and password
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.registerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /chat:
+    post:
+      consumes:
+      - application/json
+      description: Send a question to the RAG pipeline. Embeds the question, searches
+        relevant chunks, and streams LLM response via SSE.
+      parameters:
+      - description: Question and optional session ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.askRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE stream with ChatEvent objects
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "422":
+          description: Empty question or exceeds 2000 chars
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "502":
+          description: Embedding API failure
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Ask a question (RAG)
+      tags:
+      - chat
+  /chat/history:
+    get:
+      description: List all chat sessions for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.sessionListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get chat history
+      tags:
+      - chat
+  /chat/history/{sessionId}:
+    get:
+      description: Get all messages in a specific chat session. Only the session owner
+        can access.
+      parameters:
+      - description: Chat session UUID
+        in: path
+        name: sessionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.messageListResponse'
+        "400":
+          description: Invalid session ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "403":
+          description: Not the session owner
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get messages for a chat session
+      tags:
+      - chat
+  /documents:
+    get:
+      description: Get all documents uploaded by the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.documentListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: List uploaded documents
+      tags:
+      - documents
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a text document (.txt, .md, .pdf) for RAG processing. The
+        file will be chunked and embedded.
+      parameters:
+      - description: Document file (.txt, .md, .pdf, max 10MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.documentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "422":
+          description: Invalid file type or empty file
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "502":
+          description: Embedding API failure
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload a document
+      tags:
+      - documents
+  /documents/{id}:
+    delete:
+      description: Delete a document and all associated chunks. Only the owner can
+        delete.
+      parameters:
+      - description: Document UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid document ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "403":
+          description: Not the document owner
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a document
+      tags:
+      - documents
+securityDefinitions:
+  BearerAuth:
+    description: Enter "Bearer {token}" to authenticate
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 
 	"github.com/dastanchynybek/rag-chat/backend/internal/config"
 	"github.com/dastanchynybek/rag-chat/backend/internal/handler"
@@ -17,8 +18,19 @@ import (
 	"github.com/dastanchynybek/rag-chat/backend/internal/pkg/llm"
 	"github.com/dastanchynybek/rag-chat/backend/internal/repository"
 	"github.com/dastanchynybek/rag-chat/backend/internal/service"
+
+	_ "github.com/dastanchynybek/rag-chat/backend/docs"
 )
 
+// @title Mini RAG Chat API
+// @version 1.0
+// @description RAG-powered chat API with document upload, embedding, and LLM-based Q&A
+// @host localhost:8080
+// @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter "Bearer {token}" to authenticate
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -105,6 +117,9 @@ func main() {
 	chat.Post("", middleware.ChatRateLimiter(), chatHandler.Ask)
 	chat.Get("/history", middleware.DefaultRateLimiter(), chatHandler.GetHistory)
 	chat.Get("/history/:sessionId", middleware.DefaultRateLimiter(), chatHandler.GetMessages)
+
+	// Swagger
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
