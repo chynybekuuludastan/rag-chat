@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Build
+frontend/build/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Go
+backend/tmp/
+backend/vendor/
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.out
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Debug
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Misc
+*.pem
