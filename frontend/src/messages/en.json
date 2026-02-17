@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "chat": "Chat",
+    "documents": "Documents"
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "email_placeholder": "you@example.com",
+    "password_placeholder": "Min 8 characters",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "submit_login": "Sign in",
+    "submit_register": "Create account"
+  },
+  "documents": {
+    "title": "Documents",
+    "upload": "Drop files here or click to upload",
+    "upload_hint": "Supports .txt, .md, .pdf (max 10MB)",
+    "uploading": "Processing document...",
+    "empty": "No documents yet. Upload your first document.",
+    "delete_confirm": "Delete this document?",
+    "delete_description": "This will permanently delete the document and all its chunks. This action cannot be undone.",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "chunks": "chunks",
+    "uploaded": "Uploaded"
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Ask a question...",
+    "empty_title": "Start a conversation",
+    "empty_description": "Upload documents and start asking questions about them.",
+    "new_chat": "New Chat",
+    "sources": "sources",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "sessions": "Chat History",
+    "no_sessions": "No conversations yet"
+  },
+  "errors": {
+    "rate_limit": "Too many requests. Please wait.",
+    "generic": "Something went wrong",
+    "unauthorized": "Session expired. Please sign in again.",
+    "validation": "Please check your input",
+    "file_type": "Unsupported file type. Use .txt, .md, or .pdf",
+    "file_size": "File is too large. Maximum size is 10MB"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry"
+  }
+}
