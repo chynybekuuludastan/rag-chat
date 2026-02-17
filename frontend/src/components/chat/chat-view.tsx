@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChatMessage } from "./chat-message";
+import type { Message, SourceChunk } from "@/types";
+import { useEffect, useRef } from "react";
 import { ChatEmpty } from "./chat-empty";
 import { ChatInput } from "./chat-input";
-import type { Message, SourceChunk } from "@/types";
+import { ChatMessage } from "./chat-message";
 
 interface ChatViewProps {
   messages: Message[];
@@ -36,7 +36,7 @@ export function ChatView({
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-1">
-        <div className="mx-auto max-w-3xl px-4">
+        <div className="mx-auto max-w-3xl px-4 py-4">
           {isLoadingMessages ? (
             <div className="grid gap-4 py-8">
               {Array.from({ length: 3 }).map((_, i) => (

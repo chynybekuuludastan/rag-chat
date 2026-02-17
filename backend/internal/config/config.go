@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	OpenAI   OpenAIConfig
-	JWT      JWTConfig
+	Server      ServerConfig
+	Database    DatabaseConfig
+	LLMProvider string
+	OpenAI      OpenAIConfig
+	Gemini      GeminiConfig
+	JWT         JWTConfig
 }
 
 type ServerConfig struct {
@@ -28,10 +30,16 @@ type OpenAIConfig struct {
 	EmbeddingModel string
 }
 
+type GeminiConfig struct {
+	APIKey         string
+	ChatModel      string
+	EmbeddingModel string
+}
+
 type JWTConfig struct {
-	Secret           string
-	AccessTokenTTL   time.Duration
-	RefreshTokenTTL  time.Duration
+	Secret          string
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
 }
 
 func Load() (*Config, error) {
@@ -42,10 +50,16 @@ func Load() (*Config, error) {
 		Database: DatabaseConfig{
 			URL: os.Getenv("DATABASE_URL"),
 		},
+		LLMProvider: getEnv("LLM_PROVIDER", "gemini"),
 		OpenAI: OpenAIConfig{
 			APIKey:         os.Getenv("OPENAI_API_KEY"),
 			ChatModel:      getEnv("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
 			EmbeddingModel: getEnv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+		},
+		Gemini: GeminiConfig{
+			APIKey:         os.Getenv("GEMINI_API_KEY"),
+			ChatModel:      getEnv("GEMINI_CHAT_MODEL", "gemini-2.5-flash"),
+			EmbeddingModel: getEnv("GEMINI_EMBEDDING_MODEL", "text-embedding-004"),
 		},
 		JWT: JWTConfig{
 			Secret:          os.Getenv("JWT_SECRET"),
@@ -65,8 +79,17 @@ func (c *Config) validate() error {
 	if c.Database.URL == "" {
 		return fmt.Errorf("DATABASE_URL is required")
 	}
-	if c.OpenAI.APIKey == "" {
-		return fmt.Errorf("OPENAI_API_KEY is required")
+	switch c.LLMProvider {
+	case "gemini":
+		if c.Gemini.APIKey == "" {
+			return fmt.Errorf("GEMINI_API_KEY is required when LLM_PROVIDER=gemini")
+		}
+	case "openai":
+		if c.OpenAI.APIKey == "" {
+			return fmt.Errorf("OPENAI_API_KEY is required when LLM_PROVIDER=openai")
+		}
+	default:
+		return fmt.Errorf("LLM_PROVIDER must be 'gemini' or 'openai', got %q", c.LLMProvider)
 	}
 	if c.JWT.Secret == "" {
 		return fmt.Errorf("JWT_SECRET is required")

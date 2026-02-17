@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Menu } from "lucide-react";
+import { ChatSidebar } from "@/components/chat/chat-sidebar";
+import { ChatView } from "@/components/chat/chat-view";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -10,9 +9,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChatSidebar } from "@/components/chat/chat-sidebar";
-import { ChatView } from "@/components/chat/chat-view";
 import { useChat } from "@/hooks/use-chat";
+import { Menu } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 export default function ChatPage() {
   const t = useTranslations("chat");

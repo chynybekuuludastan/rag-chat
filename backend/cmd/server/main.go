@@ -61,11 +61,26 @@ func main() {
 	chatRepo := repository.NewChatRepository(pool)
 
 	// LLM Client
-	llmClient := llm.NewOpenAIClient(
-		cfg.OpenAI.APIKey,
-		cfg.OpenAI.ChatModel,
-		cfg.OpenAI.EmbeddingModel,
-	)
+	var llmClient llm.LLMClient
+	switch cfg.LLMProvider {
+	case "gemini":
+		geminiClient, err := llm.NewGeminiClient(
+			ctx,
+			cfg.Gemini.APIKey,
+			cfg.Gemini.ChatModel,
+			cfg.Gemini.EmbeddingModel,
+		)
+		if err != nil {
+			log.Fatalf("Failed to create Gemini client: %v", err)
+		}
+		llmClient = geminiClient
+	case "openai":
+		llmClient = llm.NewOpenAIClient(
+			cfg.OpenAI.APIKey,
+			cfg.OpenAI.ChatModel,
+			cfg.OpenAI.EmbeddingModel,
+		)
+	}
 
 	// Services
 	authSvc := service.NewAuthService(

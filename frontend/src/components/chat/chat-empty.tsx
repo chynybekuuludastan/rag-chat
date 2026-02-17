@@ -1,7 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function ChatEmpty() {
   const t = useTranslations("chat");
