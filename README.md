@@ -2,12 +2,12 @@
 
 AI-powered chat with your documents using RAG (Retrieval-Augmented Generation).
 
-Upload documents (PDF, Markdown, TXT), and ask questions — the system retrieves relevant chunks via vector similarity search and generates answers using OpenAI.
+Upload documents (PDF, Markdown, TXT), and ask questions — the system retrieves relevant chunks via vector similarity search and generates answers using an LLM (Gemini or OpenAI).
 
 ## Architecture
 
 ```
-Browser → Next.js (SSR) → Go API (Fiber) → PostgreSQL + pgvector → OpenAI
+Browser → Next.js (SSR) → Go API (Fiber) → PostgreSQL + pgvector → Gemini / OpenAI
 ```
 
 ### Tech Stack
@@ -17,7 +17,7 @@ Browser → Next.js (SSR) → Go API (Fiber) → PostgreSQL + pgvector → OpenA
 | Frontend | Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui |
 | Backend  | Go 1.25, Fiber v2, golang-migrate                 |
 | Database | PostgreSQL 16 + pgvector                          |
-| AI       | OpenAI (chat completions + embeddings)             |
+| AI       | Gemini or OpenAI (chat completions + embeddings)  |
 | i18n     | next-intl (en, ru, ky)                            |
 | DevOps   | Docker, docker-compose                            |
 
@@ -33,7 +33,7 @@ Browser → Next.js (SSR) → Go API (Fiber) → PostgreSQL + pgvector → OpenA
 
 ```bash
 cp .env.example .env
-# Fill in OPENAI_API_KEY and JWT_SECRET
+# Fill in GEMINI_API_KEY (or OPENAI_API_KEY) and JWT_SECRET
 docker compose up --build
 # Open http://localhost:3000
 ```
@@ -72,7 +72,7 @@ rag-chat/
 │   │   ├── service/         # Business logic
 │   │   └── pkg/             # Shared packages
 │   │       ├── chunker/     # Text chunking
-│   │       ├── llm/         # OpenAI client
+│   │       ├── llm/         # LLM clients (Gemini, OpenAI)
 │   │       └── parser/      # Document parsers (PDF, MD, TXT)
 │   ├── migrations/          # SQL migration files
 │   └── Dockerfile
@@ -102,10 +102,12 @@ cd frontend && pnpm test
 
 ## Environment Variables
 
-| Variable         | Description                       | Default                          |
-| ---------------- | --------------------------------- | -------------------------------- |
-| `DB_USER`        | PostgreSQL username               | `ragchat`                        |
-| `DB_PASSWORD`    | PostgreSQL password               | —                                |
-| `OPENAI_API_KEY` | OpenAI API key                    | —                                |
-| `JWT_SECRET`     | JWT signing secret (min 32 chars) | —                                |
-| `PORT`           | Backend server port               | `8080`                           |
+| Variable         | Description                              | Default   |
+| ---------------- | ---------------------------------------- | --------- |
+| `DB_USER`        | PostgreSQL username                      | `ragchat` |
+| `DB_PASSWORD`    | PostgreSQL password                      | —         |
+| `LLM_PROVIDER`   | LLM provider (`gemini` or `openai`)      | `gemini`  |
+| `GEMINI_API_KEY` | Gemini API key (when provider is gemini) | —         |
+| `OPENAI_API_KEY` | OpenAI API key (when provider is openai) | —         |
+| `JWT_SECRET`     | JWT signing secret (min 32 chars)        | —         |
+| `PORT`           | Backend server port                      | `8080`    |

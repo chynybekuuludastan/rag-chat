@@ -40,8 +40,13 @@ type DocumentService interface {
 	Delete(ctx context.Context, userID uuid.UUID, docID uuid.UUID) error
 }
 
+type MessageWithSources struct {
+	model.Message
+	Sources []SourceRef `json:"sources,omitempty"`
+}
+
 type ChatService interface {
 	Ask(ctx context.Context, userID uuid.UUID, sessionID *uuid.UUID, question string) (*uuid.UUID, <-chan ChatEvent, error)
 	GetHistory(ctx context.Context, userID uuid.UUID) ([]model.ChatSession, error)
-	GetMessages(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) ([]model.Message, error)
+	GetMessages(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) ([]MessageWithSources, error)
 }

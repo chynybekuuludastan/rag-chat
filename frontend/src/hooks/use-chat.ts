@@ -250,6 +250,7 @@ export function useChat() {
           role: "assistant",
           content: fullContent,
           source_chunks: sources.map((s) => s.id),
+          sources,
           created_at: new Date().toISOString(),
         };
 

@@ -49,6 +49,42 @@ func (r *chunkRepo) CreateBatch(ctx context.Context, chunks []model.Chunk) error
 	return nil
 }
 
+func (r *chunkRepo) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]model.ChunkWithDocument, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	query := `SELECT c.id, c.document_id, c.content, c.chunk_index, c.created_at,
+	                 d.filename
+	          FROM chunks c
+	          JOIN documents d ON d.id = c.document_id
+	          WHERE c.id = ANY($1)`
+
+	rows, err := r.pool.Query(ctx, query, ids)
+	if err != nil {
+		return nil, model.WrapInternal(err)
+	}
+	defer rows.Close()
+
+	var results []model.ChunkWithDocument
+	for rows.Next() {
+		var cwd model.ChunkWithDocument
+		if err := rows.Scan(
+			&cwd.ID, &cwd.DocumentID, &cwd.Content, &cwd.ChunkIndex,
+			&cwd.CreatedAt, &cwd.DocumentFilename,
+		); err != nil {
+			return nil, model.WrapInternal(err)
+		}
+		results = append(results, cwd)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, model.WrapInternal(err)
+	}
+
+	return results, nil
+}
+
 func (r *chunkRepo) SearchSimilar(ctx context.Context, embedding []float32, userID uuid.UUID, limit int, threshold float64) ([]model.ChunkWithDocument, error) {
 	query := `SELECT c.id, c.document_id, c.content, c.chunk_index, c.created_at,
 	                 d.filename,

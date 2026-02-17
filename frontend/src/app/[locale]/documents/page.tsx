@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { AuthGuard } from "@/components/layout/auth-guard";
 import { Header } from "@/components/layout/header";
 import { UploadZone } from "@/components/documents/upload-zone";
 import { DocumentList } from "@/components/documents/document-list";
@@ -44,19 +45,21 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-        <h1 className="mb-6 text-lg font-semibold">{t("title")}</h1>
-        <div className="grid gap-6">
-          <UploadZone onUpload={handleUpload} isUploading={isUploading} />
-          <DocumentList
-            documents={documents}
-            isLoading={isLoading}
-            onDelete={handleDelete}
-          />
-        </div>
-      </main>
-    </div>
+    <AuthGuard>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+          <h1 className="mb-6 text-lg font-semibold">{t("title")}</h1>
+          <div className="grid gap-6">
+            <UploadZone onUpload={handleUpload} isUploading={isUploading} />
+            <DocumentList
+              documents={documents}
+              isLoading={isLoading}
+              onDelete={handleDelete}
+            />
+          </div>
+        </main>
+      </div>
+    </AuthGuard>
   );
 }

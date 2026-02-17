@@ -167,7 +167,7 @@ func (s *chatService) GetHistory(ctx context.Context, userID uuid.UUID) ([]model
 	return sessions, nil
 }
 
-func (s *chatService) GetMessages(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) ([]model.Message, error) {
+func (s *chatService) GetMessages(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) ([]MessageWithSources, error) {
 	session, err := s.chatRepo.GetSession(ctx, sessionID)
 	if err != nil {
 		return nil, err
@@ -180,10 +180,41 @@ func (s *chatService) GetMessages(ctx context.Context, userID uuid.UUID, session
 	if err != nil {
 		return nil, err
 	}
-	if messages == nil {
-		messages = []model.Message{}
+
+	var allChunkIDs []uuid.UUID
+	for _, msg := range messages {
+		allChunkIDs = append(allChunkIDs, msg.SourceChunks...)
 	}
-	return messages, nil
+
+	chunkMap := make(map[uuid.UUID]model.ChunkWithDocument)
+	if len(allChunkIDs) > 0 {
+		chunks, err := s.chunkRepo.GetByIDs(ctx, allChunkIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, c := range chunks {
+			chunkMap[c.ID] = c
+		}
+	}
+
+	result := make([]MessageWithSources, len(messages))
+	for i, msg := range messages {
+		result[i] = MessageWithSources{Message: msg}
+		for _, chunkID := range msg.SourceChunks {
+			if c, ok := chunkMap[chunkID]; ok {
+				result[i].Sources = append(result[i].Sources, SourceRef{
+					ID:               c.ID,
+					DocumentFilename: c.DocumentFilename,
+					Content:          c.Content,
+				})
+			}
+		}
+	}
+
+	if result == nil {
+		result = []MessageWithSources{}
+	}
+	return result, nil
 }
 
 func buildPrompt(chunks []model.ChunkWithDocument, question string) []llm.ChatMessage {

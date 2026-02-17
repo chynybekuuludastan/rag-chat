@@ -168,20 +168,6 @@ func (mr *MockDocumentRepositoryMockRecorder) ListByUser(ctx, userID any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByUser", reflect.TypeOf((*MockDocumentRepository)(nil).ListByUser), ctx, userID)
 }
 
-// UpdateChunkCount mocks base method.
-func (m *MockDocumentRepository) UpdateChunkCount(ctx context.Context, id uuid.UUID, count int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateChunkCount", ctx, id, count)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateChunkCount indicates an expected call of UpdateChunkCount.
-func (mr *MockDocumentRepositoryMockRecorder) UpdateChunkCount(ctx, id, count any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateChunkCount", reflect.TypeOf((*MockDocumentRepository)(nil).UpdateChunkCount), ctx, id, count)
-}
-
 // MockChunkRepository is a mock of ChunkRepository interface.
 type MockChunkRepository struct {
 	ctrl     *gomock.Controller
@@ -204,6 +190,21 @@ func NewMockChunkRepository(ctrl *gomock.Controller) *MockChunkRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockChunkRepository) EXPECT() *MockChunkRepositoryMockRecorder {
 	return m.recorder
+}
+
+// GetByIDs mocks base method.
+func (m *MockChunkRepository) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]model.ChunkWithDocument, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByIDs", ctx, ids)
+	ret0, _ := ret[0].([]model.ChunkWithDocument)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByIDs indicates an expected call of GetByIDs.
+func (mr *MockChunkRepositoryMockRecorder) GetByIDs(ctx, ids any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByIDs", reflect.TypeOf((*MockChunkRepository)(nil).GetByIDs), ctx, ids)
 }
 
 // CreateBatch mocks base method.
@@ -346,16 +347,3 @@ func (mr *MockChatRepositoryMockRecorder) ListSessionsByUser(ctx, userID any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSessionsByUser", reflect.TypeOf((*MockChatRepository)(nil).ListSessionsByUser), ctx, userID)
 }
 
-// UpdateSessionTitle mocks base method.
-func (m *MockChatRepository) UpdateSessionTitle(ctx context.Context, id uuid.UUID, title string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateSessionTitle", ctx, id, title)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateSessionTitle indicates an expected call of UpdateSessionTitle.
-func (mr *MockChatRepositoryMockRecorder) UpdateSessionTitle(ctx, id, title any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSessionTitle", reflect.TypeOf((*MockChatRepository)(nil).UpdateSessionTitle), ctx, id, title)
-}

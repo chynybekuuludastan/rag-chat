@@ -1,6 +1,5 @@
 "use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Message, SourceChunk } from "@/types";
 import { useEffect, useRef } from "react";
@@ -27,15 +26,33 @@ export function ChatView({
   onSend,
   onStop,
 }: ChatViewProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScroll = useRef(true);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (!el) return;
+
+    function handleScroll() {
+      if (!el) return;
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      shouldAutoScroll.current = scrollHeight - scrollTop - clientHeight < 80;
+    }
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (shouldAutoScroll.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, streamingContent]);
 
   return (
     <div className="flex h-full flex-col">
-      <ScrollArea className="flex-1">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 py-4">
           {isLoadingMessages ? (
             <div className="grid gap-4 py-8">
@@ -52,6 +69,7 @@ export function ChatView({
                   key={msg.id}
                   role={msg.role}
                   content={msg.content}
+                  sources={msg.sources}
                 />
               ))}
               {isStreaming && (
@@ -66,7 +84,7 @@ export function ChatView({
             </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
       <ChatInput onSend={onSend} onStop={onStop} isStreaming={isStreaming} />
     </div>
   );

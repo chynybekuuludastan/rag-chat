@@ -19,11 +19,11 @@ type DocumentRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*model.Document, error)
 	ListByUser(ctx context.Context, userID uuid.UUID) ([]model.Document, error)
 	Delete(ctx context.Context, id uuid.UUID) error
-	UpdateChunkCount(ctx context.Context, id uuid.UUID, count int) error
 }
 
 type ChunkRepository interface {
 	CreateBatch(ctx context.Context, chunks []model.Chunk) error
+	GetByIDs(ctx context.Context, ids []uuid.UUID) ([]model.ChunkWithDocument, error)
 	SearchSimilar(ctx context.Context, embedding []float32, userID uuid.UUID, limit int, threshold float64) ([]model.ChunkWithDocument, error)
 	DeleteByDocument(ctx context.Context, documentID uuid.UUID) error
 }
@@ -32,7 +32,6 @@ type ChatRepository interface {
 	CreateSession(ctx context.Context, session *model.ChatSession) error
 	GetSession(ctx context.Context, id uuid.UUID) (*model.ChatSession, error)
 	ListSessionsByUser(ctx context.Context, userID uuid.UUID) ([]model.ChatSession, error)
-	UpdateSessionTitle(ctx context.Context, id uuid.UUID, title string) error
 	CreateMessage(ctx context.Context, msg *model.Message) error
 	GetMessagesBySession(ctx context.Context, sessionID uuid.UUID) ([]model.Message, error)
 }

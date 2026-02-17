@@ -95,53 +95,6 @@ class ApiClient {
     return res.json() as Promise<T>;
   }
 
-  createSSEStream(path: string, body: object): EventSource | ReadableStream {
-    const url = `${API_URL}${path}`;
-    const controller = new AbortController();
-
-    const stream = new ReadableStream({
-      start: async (streamController) => {
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              ...(this.accessToken && {
-                Authorization: `Bearer ${this.accessToken}`,
-              }),
-            },
-            body: JSON.stringify(body),
-            signal: controller.signal,
-          });
-
-          if (!res.ok || !res.body) {
-            streamController.close();
-            return;
-          }
-
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            streamController.enqueue(decoder.decode(value, { stream: true }));
-          }
-
-          streamController.close();
-        } catch {
-          streamController.close();
-        }
-      },
-      cancel() {
-        controller.abort();
-      },
-    });
-
-    return stream;
-  }
-
   private async refresh(): Promise<boolean> {
     if (this.refreshPromise) return this.refreshPromise;
 

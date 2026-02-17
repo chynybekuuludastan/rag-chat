@@ -27,6 +27,7 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   source_chunks?: string[];
+  sources?: SourceChunk[];
   created_at: string;
 }
 

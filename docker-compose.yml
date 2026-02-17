@@ -21,8 +21,9 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/ragchat?sslmode=disable
-      - LLM_PROVIDER=gemini
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
       - PORT=8080
     ports:

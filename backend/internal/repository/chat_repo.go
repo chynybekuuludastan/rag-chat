@@ -73,17 +73,6 @@ func (r *chatRepo) ListSessionsByUser(ctx context.Context, userID uuid.UUID) ([]
 
 	return sessions, nil
 }
-
-func (r *chatRepo) UpdateSessionTitle(ctx context.Context, id uuid.UUID, title string) error {
-	query := `UPDATE chat_sessions SET title = $2 WHERE id = $1`
-
-	_, err := r.pool.Exec(ctx, query, id, title)
-	if err != nil {
-		return model.WrapInternal(err)
-	}
-	return nil
-}
-
 func (r *chatRepo) CreateMessage(ctx context.Context, msg *model.Message) error {
 	query := `INSERT INTO messages (id, session_id, role, content, source_chunks, created_at)
 	          VALUES ($1, $2, $3, $4, $5, $6)`

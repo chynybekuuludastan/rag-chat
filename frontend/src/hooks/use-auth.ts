@@ -61,6 +61,24 @@ export function useAuth() {
   );
 }
 
+export async function tryRefresh(): Promise<boolean> {
+  try {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
+    const res = await fetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    api.setToken(data.access_token);
+    emitChange();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function handleApiError(error: unknown): string {
   if (error instanceof ApiError) {
     return error.data.message || error.data.error;

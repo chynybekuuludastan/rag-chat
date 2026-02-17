@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/components/layout/auth-guard";
 import { Header } from "@/components/layout/header";
 
 export default function ChatLayout({
@@ -6,9 +7,11 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen flex-col">
-      <Header />
-      {children}
-    </div>
+    <AuthGuard>
+      <div className="flex h-screen flex-col">
+        <Header />
+        {children}
+      </div>
+    </AuthGuard>
   );
 }

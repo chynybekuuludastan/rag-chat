@@ -92,13 +92,3 @@ func (r *documentRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 	return nil
 }
-
-func (r *documentRepo) UpdateChunkCount(ctx context.Context, id uuid.UUID, count int) error {
-	query := `UPDATE documents SET chunk_count = $2 WHERE id = $1`
-
-	_, err := r.pool.Exec(ctx, query, id, count)
-	if err != nil {
-		return model.WrapInternal(err)
-	}
-	return nil
-}
